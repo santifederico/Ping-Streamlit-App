@@ -24,4 +24,4 @@ jobs:
           MENSAJE="⚠️ La app Streamlit respondió con un error (HTTP ${STATUS_CODE}). Revisá: https://santifederico-santa-maria-app-pssjxi.streamlit.app//"
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="$MENSAJE
+            -d text="$MENSAJE"
