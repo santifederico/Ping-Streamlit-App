@@ -2,8 +2,8 @@ name: Ping Streamlit App
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # ⏰ Cada 3 horas
-  workflow_dispatch:        # Permite ejecutarlo manualmente
+    - cron: '0 * * * *'  # Cada 1 hora
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -14,14 +14,14 @@ jobs:
         id: ping
         run: |
           echo "Haciendo ping a la app con headers simulando navegador..."
-
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
-
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app//)
           echo "Código de respuesta: $STATUS_CODE"
           echo "::set-output name=status_code::$STATUS_CODE"
 
-      - name: Verificar estado del ping
+      - name: Notificar por Telegram si falla
         if: steps.ping.outputs.status_code != '200'
         run: |
-          echo "⚠️ La app respondió con un error (código distinto de 200)"
-          exit 1
+          MENSAJE="⚠️ La app Streamlit respondió con un error (HTTP ${STATUS_CODE}). Revisá: https://santifederico-santa-maria-app-pssjxi.streamlit.app//"
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="$MENSAJE
