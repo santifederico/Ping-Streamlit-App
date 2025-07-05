@@ -10,12 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hacer ping con headers personalizados
+      - name: Hacer ping con reintento si es necesario
         id: ping
         run: |
-          echo "Haciendo ping a la app con headers simulando navegador..."
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app//)
-          echo "Código de respuesta: $STATUS_CODE"
+          echo "Primer intento de ping a la app..."
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
+          echo "Primer intento: HTTP $STATUS_CODE"
+
+          if [ "$STATUS_CODE" != "200" ]; then
+            echo "Falló (HTTP $STATUS_CODE), esperando 60 segundos y reintentando..."
+            sleep 60
+            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
+            echo "Segundo intento: HTTP $STATUS_CODE"
+          fi
+
           echo "::set-output name=status_code::$STATUS_CODE"
 
       - name: Notificar por Telegram si falla
