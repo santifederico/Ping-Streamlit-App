@@ -14,13 +14,15 @@ jobs:
         id: ping
         run: |
           echo "Primer intento de ping a la app..."
-          STATUS_CODE=$(curl -L -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
+          STATUS_CODE=$(curl -L --max-redirs 5 -s -o /dev/null -w "%{http_code}" \
+            -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
           echo "Primer intento: HTTP $STATUS_CODE"
 
           if [ "$STATUS_CODE" != "200" ]; then
             echo "Falló (HTTP $STATUS_CODE), esperando 60 segundos y reintentando..."
             sleep 60
-            STATUS_CODE=$(curl -L -s -o /dev/null -w "%{http_code}" -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
+            STATUS_CODE=$(curl -L --max-redirs 5 -s -o /dev/null -w "%{http_code}" \
+              -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
             echo "Segundo intento: HTTP $STATUS_CODE"
           fi
 
