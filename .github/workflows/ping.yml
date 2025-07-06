@@ -2,7 +2,7 @@ name: Ping Streamlit App
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Cada 1 hora
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,16 +14,21 @@ jobs:
         id: ping
         run: |
           echo "Primer intento de ping a la app..."
-          STATUS_CODE=$(curl -L --max-redirs 5 -s -o /dev/null -w "%{http_code}" \
-            -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
-          echo "Primer intento: HTTP $STATUS_CODE"
 
-          if [ "$STATUS_CODE" != "200" ]; then
+          # Primer intento
+          STATUS_CODE=$(curl -L --max-redirs 10 --fail -s -o /dev/null -w "%{http_code}" \
+            -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
+          CURL_EXIT=$?
+          echo "Primer intento: HTTP $STATUS_CODE (exit code $CURL_EXIT)"
+
+          # Si falló, reintentar una vez más
+          if [ "$CURL_EXIT" -ne 0 ] || [ "$STATUS_CODE" != "200" ]; then
             echo "Falló (HTTP $STATUS_CODE), esperando 60 segundos y reintentando..."
             sleep 60
-            STATUS_CODE=$(curl -L --max-redirs 5 -s -o /dev/null -w "%{http_code}" \
+            STATUS_CODE=$(curl -L --max-redirs 10 --fail -s -o /dev/null -w "%{http_code}" \
               -H "User-Agent: Mozilla/5.0" https://santifederico-santa-maria-app-pssjxi.streamlit.app/)
-            echo "Segundo intento: HTTP $STATUS_CODE"
+            CURL_EXIT=$?
+            echo "Segundo intento: HTTP $STATUS_CODE (exit code $CURL_EXIT)"
           fi
 
           echo "status_code=$STATUS_CODE" >> "$GITHUB_OUTPUT"
