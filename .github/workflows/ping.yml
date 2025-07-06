@@ -26,7 +26,7 @@ jobs:
             echo "Segundo intento: HTTP $STATUS_CODE"
           fi
 
-          echo "::set-output name=status_code::$STATUS_CODE"
+          echo "status_code=$STATUS_CODE" >> "$GITHUB_OUTPUT"
 
       - name: Notificar por Telegram si falla
         if: steps.ping.outputs.status_code != '200'
