@@ -2,10 +2,8 @@ name: Streamlit Traffic Bot
 
 on:
   schedule:
-    # Se ejecuta cada hora. Puedes ajustar esto.
-    # Por ejemplo, '0 */6 * * *' para cada 6 horas.
-    # Más información sobre sintaxis cron: [https://crontab.guru/](https://crontab.guru/)
-    - cron: '0 * * * *'
+    # Se ejecuta cada 5 minutos. Esta es una frecuencia común para mantener apps activas.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
 
@@ -20,7 +18,7 @@ jobs:
     - name: Configurar Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.x' # Puedes especificar una versión como '3.9'
+        python-version: '3.x'
 
     - name: Instalar dependencias
       run: |
@@ -30,8 +28,6 @@ jobs:
     - name: Ejecutar el bot de tráfico
       run: python main.py
       env:
-        # Estas variables de entorno deben configurarse como GitHub Secrets
-        # Ve a tu repositorio > Settings > Secrets and variables > Actions > New repository secret
         STREAMLIT_APP_URL: ${{ secrets.STREAMLIT_APP_URL }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
